@@ -121,3 +121,66 @@ then you should load static as we talked earlier
 ```
   <img class="nav-small-hazem" src="{% static 'images/logo.png' %}">
 ```
+
+## ***models***
+
+models are object database schema that is going to be reflected in database as tables and Django creates any of them for us for authentication login and we first need to ***migrate*** these changes which mean ***commanding database engine to updateing database tables with latest schema for our tables that we changed***
+and log back the tables migrated
+
+to run migrations
+```
+$ python3 manage.py migrate
+```
+this command migrates default database structure and because we are running on sqlite we don't have way to see these tables so we need to create a super user to use Django admin panel to view these data
+
+now let's look at ***models.py*** within app directory
+
+we can add object based tables schema such that
+```
+class Customer(models.Model):
+    name  = models.CharField(max_length=200, null=True)
+    phone = models.CharField(max_length=200, null=True)
+    email = models.CharField(max_length=200, null=True)
+
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
+```
+this class inherite from models the database types and keywords that helps you identify the table columns.
+
+this will create a table with name **appname_tablename** which will be accountss_customer, this table will have columns **id, name, phone, email, date_created** the first id column is an auto generated column to indicate records insertion within the table with a unique id which is an incremental number starting from 1 then the column date_created is auto inserted in the database while insertion 
+
+- then after saving this file you need to run migrations with these two commands
+    - `$ python3 manage.py makemigrations`
+    this command creates new schema to changes that is going to be uploaded to database 
+    
+    - `$ python3 manage.py migrate`
+    this update upload the changes to database and actually create or modify the tables there(in the daatbase file)
+
+then to be able to see these changes with admin panel you need to register this table to the *admin.py* file such that
+```
+from .models import Customer 
+
+admin.site.register(Customer)
+```
+then on the **/admin** url you can CRUD new records in the table 
+also you can use this below code on class 
+```
+def __str__(self):
+        return self.name
+``` 
+to return the name of a certain field this is used by admin panel to show the name of each column in panel table view
+
+
+also you can constrain the fields with certain value by creating a list such that
+```
+STATUS = (
+        ('Pending','Pending'),
+        ('Out for Delivery','Out for Delivery'),
+        ('Delivered','Delivered'),
+    )
+```
+***noteice here*** that the right value is the displayed value and the left one is the actually stored one
+
+and assign this values to certain column such that
+```
+    status = models.CharField(max_length=200, null=True, choices=STATUS)
+```
