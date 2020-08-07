@@ -184,3 +184,42 @@ and assign this values to certain column such that
 ```
     status = models.CharField(max_length=200, null=True, choices=STATUS)
 ```
+
+- one to many Relationship is handeled as we know by a foreignkey constrain and admin panel understands these relationships
+we can do foreignKey such that
+    ```
+    within order class
+        product  = models.ForeignKey(Product,   null=True, on_delete=models.SET_NULL)
+    ```
+
+    this need to be linked with ***on_delete*** method to set this record in Product table with null when the reference value(Primary Key) in product class is being removed also see those:
+
+    - CASCADE: When the referenced object is deleted, also delete the objects that have references to it (when you remove a blog post for instance, you might want to delete comments as well). SQL equivalent: CASCADE.
+
+    - PROTECT: Forbid the deletion of the referenced object. To delete it you will have to delete all objects that reference it manually. SQL equivalent: RESTRICT.
+
+    - RESTRICT: (introduced in Django 3.1) Similar behavior as PROTECT that matches SQL's RESTRICT more accurately. (See django documentation example)
+
+    - SET_NULL: Set the reference to NULL (requires the field to be nullable). For instance, when you delete a User, you might want to keep the comments he posted on blog posts, but say it was posted by an anonymous (or deleted) user. SQL equivalent: SET NULL.
+
+    - SET_DEFAULT: Set the default value. SQL equivalent: SET DEFAULT.
+
+    - SET(...): Set a given value. This one is not part of the SQL standard and is entirely handled by Django.
+
+    - DO_NOTHING: Probably a very bad idea since this would create integrity issues in your database (referencing an object that actually doesn't exist). SQL equivalent: NO ACTION.
+
+- Many To Many relationship in handled within by a table that matches tags for each product by third table that maps them the Django handles this automatically with this creation of Tags class such that
+```
+class Tag(models.Model):
+    name  = models.CharField(max_length=200, null=True)
+    
+    def __str__(self):
+        return self.name
+```
+that only takes the tag name
+and the Django engine generates product_tags table that saves each product with each tags
+in the product table you need add a link to that relationship within the Product class such that 
+```
+within Product class
+    tags = models.ManyToManyField(Tag)
+```
