@@ -223,3 +223,58 @@ in the product table you need add a link to that relationship within the Product
 within Product class
     tags = models.ManyToManyField(Tag)
 ```
+
+### ***Quering data***
+- in Chile-parent model you can find data up/down using object mapping methods such that
+Suppose we have two classes parent class and chile one such that
+
+```
+class parent(models.Model):
+    name = models.charfield(....)
+
+class child(models.Model):
+    parent = modelsForeignKey(parent)
+    ....
+
+```
+then you can go down by finding childs of the parent such that
+```
+parent1 = parent.objects.first()
+childs_of_parent1 = parent1.child_set.all()
+```
+also you can go up by finding info about the child such that
+```
+child1 = child.objects.get(id=2)
+print(child1.id,child1.phone) 
+or
+print(child1.parent.name) #this will print the name from parent table that have child id = 2
+```
+
+- to filter the data you can do it such that
+```
+parent.objects.filter(name="hazem")
+```
+if you leave the filter empty it will act as .all() and return all elements in the table
+
+you can also chaining them such that:
+```
+parent.objects.filter(name="hazem",id=1)
+```
+
+-to order elements according to columns do such that
+```
+parents = parent.objects.all().order_by('id')
+```
+and to order in reverse order do that
+```
+parents = parent.objects.all().order_by('-id')
+```
+
+- to order data of many-many relationship such as listing products with tag "sports"
+you can start from .ManyToManyField() instance link and go up such that
+```
+products = Product.objects.filter(tags__name="Sports")
+``` 
+this will search for the tags named "Sports" and matches that with Products and filters it with tag named "Sports"
+
+if the record is countable we can count that by .count method or looping through out them and counting to a dictionary of all elements existed per that record field
