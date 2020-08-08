@@ -278,3 +278,84 @@ products = Product.objects.filter(tags__name="Sports")
 this will search for the tags named "Sports" and matches that with Products and filters it with tag named "Sports"
 
 if the record is countable we can count that by .count method or looping through out them and counting to a dictionary of all elements existed per that record field
+
+<hr>
+
+## Template Tags 
+
+related to views
+
+it a way for us to write python code like logic in our templates to output data
+- for loops in a template 
+```
+{% for i in range(5) %}
+    <tr>
+        <td></td>
+    </tr>
+{% endfor %}
+``` 
+-variables comming from rendered views
+```
+<td> {{ customer.name }} </td>
+```
+
+also you need to pass these variables within the ***views.py*** file and pass the data to the rendered template also don't forget to include models file to be able to interact with db models such that 
+
+```
+...
+from .models import *
+...
+
+within products model
+... 
+    products = Product.objects.all()
+    
+    return render(request, 'accountss/products.html', {'products':products})
+    ...
+
+```
+and within the template you need to do such that
+
+```
+{% for i in products %}
+    <tr>
+        <td>
+            {{ i.name }}
+        </td>
+        <td>
+            {{ i.category }}
+        </td>
+        <td>
+            {{ i.price }}
+        </td>
+    </tr>
+{% endfor %}
+```
+also you can pass the context variable containing all values such that
+
+```
+orders = Order.objects.all() 
+    customers = Customer.objects.all()
+
+    total_customers = customers.count()
+
+    total_orders = orders.count()
+
+    delivered = orders.filter(status= 'Delivered').count()
+    pending = orders.filter(status= 'Pending').count()
+
+    context = {'customers':customers, 'orders':orders, 'total_orders':total_orders, 'delivered':delivered, 'pending':pending}
+    return render(request, 'accountss/Dashboard.html',context)
+```
+
+and within the template you can call these dictionary elements by their direct name because context is parsed with Django as main template context such that
+```
+{% for customer in customers %}
+    <tr>
+        <td></td>
+        <td>{{ customer.name }}</td>
+        <td>{{ customer.phone }}</td>
+    </tr>
+{% endfor %}
+and so on ...
+```
