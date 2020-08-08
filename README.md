@@ -359,3 +359,51 @@ and within the template you can call these dictionary elements by their direct n
 {% endfor %}
 and so on ...
 ```
+## Dyanamic Url Routing & dynamic templates
+we can pass data into the url and render data according to these data within **urls.py** such that
+```
+    path('customer/<str:pk>', views.customer),
+```
+here we declared a string variable called pk we also can define variables such that
+```
+<int:variable_name>
+<slug:variable_name> 
+``` 
+slug is a small string sentence
+
+then within the **views.py** file you need to receive this variable such that
+```
+
+def customer(request, pk):
+    customer = Customer.objects.get(id=pk)
+    ...
+```
+and do what ever you want with it and render it back to the tempalte
+
+*** Notice *** 
+when dealing with models it links foreign key values with it's primary key table so you can select elements by their linked tables
+
+now to make your url more dynamic you can add an argumant **name** to path method in **urls.py** file such that
+```
+    path('products/', views.products,name='products'),
+```
+this will enable you to call the template by it's name even if you change the url itself
+so to call this dynamic url in templates you can do such that
+```
+{% url 'name' val.id %}
+{% url 'customer' customer.id %}
+```
+so if you change the url to 'customer_data' it will be updated automatically 
+
+and this makes your links in the templates also dynamic with any change in the links layout
+
+
+
+
+
+
+
+
+
+
+
