@@ -1,0 +1,45 @@
+{% extends 'accountss/main.html'%}
+
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-body">
+
+            <form action="" method="POST">
+
+                {% csrf_token %}
+
+                <label> {{ form.customer.label }} </label>
+                <select name="{{form.customer.name}}" required oninvalid="this.setCustomValidity(this.value ? '' : 'برجاء ادخال اسم الزبون');" >
+                    {% for select in form.customer %}
+                        {{ select }}
+                    {% endfor %}
+                </select>
+                <br>
+
+                <label> {{ form.product.label }} </label>
+                <select name="{{form.product.name}}" required oninvalid="this.setCustomValidity(this.value ? '' : 'برجاء ادخال المنتج');" >
+                    {% for select in form.product %}
+                        {{ select }}
+                    {% endfor %}
+                </select>
+                <br>
+
+                <label> {{ form.status.label }} </label>
+                <select name="{{form.status.name}}" required oninvalid="this.setCustomValidity(this.value ? '' : 'برجاء ادخال حالة المنتج');">
+                    {% for select in form.status %}
+                        {{ select }}
+                    {% endfor %}
+                </select>
+                <br>
+                <!-- {{ form.customer.error_messages }} -->
+
+                <input type="submit" name="Submit" value="حفظ" onclick="this.click();" >
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

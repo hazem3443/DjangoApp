@@ -105,7 +105,7 @@ to force Django engine to look for static directory and map it's css and js file
 ```
 and each time you have a new css file or js file you shold add a link to it in the head of ***main.html*** file
 
-### ***notice here***
+ ***notice here***
  that each time you call an image or video to go to it's dir
 first you should provide 
 ```
@@ -397,13 +397,177 @@ so if you change the url to 'customer_data' it will be updated automatically
 
 and this makes your links in the templates also dynamic with any change in the links layout
 
+##CRUD functionality to a certain model
 
+###Create
+it is a list of steps that is related to writing to database in a proper way there are different way to do that and this way called Model Form 
 
+- first we need to create the Form class that is going to inherite from ModelForm class that have all methods that are going to help us insert into our db such as **.save** method which saves data to db **is_valid** this is going to check our csrf token also the form itself contains the fields we are going to submit with choices we choose, and takes in the db model , but don't forget to import the model such that 
+```
+...
+from .models import Order
+...
 
+class OrderForm(ModelForm):    
+    class Meta:
+        model = Order
+        
+        fields = '__all__' #['customer','product']
+        
+        label = {
+            'customer': _('الزبون'),
+            'product': _('المنتج'),
+            'status': _('حالة المنتج'),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super(OrderForm, self).__init__(*args, **kwargs)
+        print("hellos")
+        self.fields["customer"].choices = [("", "please choose value"),] + list(self.fields["customer"].choices)[1:]        
+        self.fields["product"].choices = [("", "please choose value"),] + list(self.fields["product"].choices)[1:]        
+        self.fields["status"].choices = [("", "please choose value"),] + list(self.fields["status"].choices)[1:]
+```
+after importing models we can create a class of our submitted form calling it **OrderForm** this class contains class meta which have model and fields choosen from that model that is going to be inserted and submitted back to the user then you can edit labels of these fields to be something else than column name also for foreign keys it creates multichoice field (combobox) that is going to be selected and submitted, by default it creates that field for foreign key values and you can change default message by extending the class constructor with all of it's code there in the ModelForm class
 
+- second you need to create the view & route for that page that is going to use that class we just created but for our view here we need to under stand something that when we create a form into our page this form is loaded with user inserted data then is going to sent back with **POST** request so here we first need to create a form with csrf token to check validation of the form we sent to the user to avoid cross site request forgery attack then when the user fill in the form and sent it back to the server posted data is saved in request object and server checkes that form and writes it to db and creates new form with the written data to it, then redirect to home page
 
+so in our **views.py**
 
+```
+....
+from .forms import OrderForm
 
+def createOrder(request):
+    form = OrderForm() #this is for the first form creation according to fields in the form
+    if request.method == 'POST':
+        print('form is: ',form)
+        # print('this is post: ',request.POST)
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            print("Errors are: ",form.errors)
+            form.save() 
+            return redirect('/')
+
+    context = {'form':form}
+    return render(request, 'accountss/order_form.html',context)
+```
+notice here that the view returns **order_form** which we will talk about in thirdstep
+also the route for that view is
+```
+    path('create_order/', views.createOrder, name='create_order'),
+``` 
+- third we need to create the template of the form that is going to be submitted first the ModelForm we inherited from makes the form for us but here we need to submit it to the server and generate the tamplate we want we can easily call **{{form}}** and it will be added directly to the template or we can call form members individually and style it as we want such that:
+    - {{form.customer.name}} ->this gets the column model name 
+    
+    - {{ form.customer.label }} ->this gets the label name that you specified in the form class
+
+    - {{ form.customer.help_text }} ->this gets help text of field you specified help text to
+
+    - {{ form.customer }} -> this gets the input field to be submitted 
+    
+    - also there is a help message that can be added within 
+    
+also you can loop over form fields but you should take care of fields name while submitting the form and you can edit default html tags with this method of form creation and you can add **required** alert messages, this is **order_form.html**template which extends from main template:
+```
+{% extends 'accountss/main.html'%}
+
+{% load static %}
+
+{% block content %}
+
+<form action="" method="POST">
+
+    {% csrf_token %}
+    
+    <label> {{ form.customer.label }} </label>
+    <select name="{{form.customer.name}}" required oninvalid="this.setCustomValidity(this.value ? '' : 'برجاء ادخال اسم الزبون');" >
+        {% for select in form.customer %}
+            {{ select }}
+        {% endfor %}
+    </select>
+    <br>
+    
+    <label> {{ form.product.label }} </label>
+    <select name="{{form.product.name}}" required oninvalid="this.setCustomValidity(this.value ? '' : 'برجاء ادخال المنتج');" >
+        {% for select in form.product %}
+            {{ select }}
+        {% endfor %}
+    </select>
+    <br>
+
+    <label> {{ form.status.label }} </label>
+    <select name="{{form.status.name}}" required oninvalid="this.setCustomValidity(this.value ? '' : 'برجاء ادخال حالة المنتج');">
+        {% for select in form.status %}
+            {{ select }}
+        {% endfor %}
+    </select>
+    <br>
+    <!-- {{ form.customer.error_messages }} -->
+
+    <input type="submit" name="Submit" value="حفظ" onclick="this.click();" >
+</form>
+{% endblock %}
+```
+
+###Update
+as we did with create and this update will use the same template 
+- first let's create a view and url for that update functionality 
+but here the update will need a foreignkey value to get data of this id from db and fill in this data into our form and pass these to our template 
+so to create this view in **view.py** :
+```
+def updateOrder(request, pks):
+    order = Order.objects.get(id=pks)
+    form = OrderForm(instance=order)
+    print("sss: ",order)
+    context = {'form':form}
+    if request.method == 'POST':
+        print('this is post: ',request.POST,"instance: ",order)
+        form = OrderForm(request.POST, instance=order)#here you need to pass the same instance to inforce save method to update old instance of order model not to create a new one
+        if form.is_valid():
+            print("Errors are: ",form.errors)
+            form.save()
+            return redirect('/')
+
+    return render(request, 'accountss/order_form.html',context)
+```
+but notice here we first get data by id that we will get from update button on the dashboard then pass this instance of data into a new **OrderForm** and then passes this data to our template whcih is the same template of create but this time form is preloaded with data in db then to proceed the update we did as we did with create functionality but this time we need to pass the same instance we already got to force the **.save** method to update not to create 
+
+just that for now and no need here to create a form class or any templates actually if you want you can do that and change the template but as soon as you update the inserted values so why creating a new template ? :D also you can **false commit changes** before actually updating to db and change the commited instance and commit these new changes to db only if you do some logic before updating or override user data according to some inputs
+
+###Delete
+to perform delete operation you need to log a message to the user to ensure that he want to delete this item and this form should be csrf protected so 
+
+- first we need to create **delete.html** form which is going to be ask user to confirm delete operation such that
+```
+{% extends 'accountss/main.html'%}
+{% load static %}
+{% block content %}
+
+<p>Are you sure you want to delete {{item}}?</p>
+
+<form method="POST">
+    {% csrf_token %}
+    <a href="{% url 'home' %}">Cancel</a>
+    <input type="submit" name="Confirm">
+</form>
+{% endblock %}
+```
+this form extends main form and submit a post request to the concerned view (deleteOrder)
+
+- second we need to create the view and the url that is going to be directed to and this url will be called by order id form dashboard
+first the view is such that :
+```
+@requires_csrf_token
+def deleteOrder(request,pkd): 
+    item = Order.objects.get(id=pkd)
+    context = {'item': item}
+    if request.method == 'POST':
+        item.delete()
+        return redirect('/')
+
+    return render(request, 'accountss/delete.html', context)
+```
+the **@requires_csrf_token** is for csrf validation on that view then to perform delete operation we need to get instance by id then if the POST request is sent back to this template with valid csrf token the the user has confirmed the delete operation so delete it with **delete()** method 
 
 
 

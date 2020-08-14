@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from django.views.decorators.csrf import requires_csrf_token
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
-from django.shortcuts import render
-
 from .models import *
+
+from .forms import OrderForm
 
 # Create your views here.
 def home(request):
@@ -25,7 +26,6 @@ def products(request):
     
     return render(request, 'accountss/products.html', {'products':products})
     
-
 def customer(request, pk):
     customer = Customer.objects.get(id=pk)
 
@@ -33,3 +33,44 @@ def customer(request, pk):
     orders_count = orders.count()
     context = {'customer':customer, 'orders':orders,'orders_count':orders_count}
     return render(request, 'accountss/customer.html', context)
+
+def createOrder(request):
+    form = OrderForm() #this is for the first form creation according to fields in the form
+    if request.method == 'POST':
+        # print('this is post: ',request.POST)
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            print("Errors are: ",form.errors)
+            form.save() 
+            return redirect('/')
+
+    context = {'form':form}
+    return render(request, 'accountss/order_form.html',context)
+
+def updateOrder(request, pku):
+    order = Order.objects.get(id=pku)
+    form = OrderForm(instance=order)
+    context = {'form':form}
+    if request.method == 'POST':
+        print('this is post: ',request.POST,"instance: ",order)
+        form = OrderForm(request.POST, instance=order)#here you need to pass the same instance to inforce save method to update old instance of order model not to create a new one
+        if form.is_valid():
+            print("Errors are: ",form.errors)
+            form.save()
+            return redirect('/')
+    return render(request, 'accountss/order_form.html',context)
+
+@requires_csrf_token
+def deleteOrder(request,pkd): 
+    item = Order.objects.get(id=pkd)
+    context = {'item': item}
+    if request.method == 'POST':
+        item.delete()
+        return redirect('/')
+
+    return render(request, 'accountss/delete.html', context)
+
+
+
+
+    
