@@ -397,9 +397,9 @@ so if you change the url to 'customer_data' it will be updated automatically
 
 and this makes your links in the templates also dynamic with any change in the links layout
 
-##CRUD functionality to a certain model
+## **CRUD functionality to a certain model**
 
-###Create
+### **Create**
 it is a list of steps that is related to writing to database in a proper way there are different way to do that and this way called Model Form 
 
 - first we need to create the Form class that is going to inherite from ModelForm class that have all methods that are going to help us insert into our db such as **.save** method which saves data to db **is_valid** this is going to check our csrf token also the form itself contains the fields we are going to submit with choices we choose, and takes in the db model , but don't forget to import the model such that 
@@ -509,7 +509,7 @@ also you can loop over form fields but you should take care of fields name while
 {% endblock %}
 ```
 
-###Update
+### **Update**
 as we did with create and this update will use the same template 
 - first let's create a view and url for that update functionality 
 but here the update will need a foreignkey value to get data of this id from db and fill in this data into our form and pass these to our template 
@@ -534,7 +534,7 @@ but notice here we first get data by id that we will get from update button on t
 
 just that for now and no need here to create a form class or any templates actually if you want you can do that and change the template but as soon as you update the inserted values so why creating a new template ? :D also you can **false commit changes** before actually updating to db and change the commited instance and commit these new changes to db only if you do some logic before updating or override user data according to some inputs
 
-###Delete
+### **Delete**
 to perform delete operation you need to log a message to the user to ensure that he want to delete this item and this form should be csrf protected so 
 
 - first we need to create **delete.html** form which is going to be ask user to confirm delete operation such that
