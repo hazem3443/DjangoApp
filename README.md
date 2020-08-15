@@ -569,5 +569,58 @@ def deleteOrder(request,pkd):
 ```
 the **@requires_csrf_token** is for csrf validation on that view then to perform delete operation we need to get instance by id then if the POST request is sent back to this template with valid csrf token the the user has confirmed the delete operation so delete it with **delete()** method 
 
+## inline-form sets
+this saves and updates and deletes many forms in one form operation or formset 
+- first we need to create a template such that :
+```
+{% extends 'accountss/main.html'%}
+
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-body">
+
+            <form action="" method="POST">
+
+                {% csrf_token %}
+                {{ formset.management_form }}
+                {% for form in formset %}
+                    {{form}}
+                    <br>
+                {%endfor%}
+                <input type="submit" name="Submit" value="حفظ" onclick="this.click();" >
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+```
+- then we need to create views and urls such that in **view.py** with it's import
+```
+....
+from django.forms import inlineformset_factory
+....
+
+def createMultipleOrder(request,pkm):
+    customer = Customer.objects.get(id=pkm)
+    ordersCount = Order.objects.filter(customer=pkm).count()
+    orderFormSet = inlineformset_factory(Customer, Order, fields =('product', 'status'),extra=1 )
+    formset = orderFormSet(instance = customer) #also you can add queryset=Order.objects.none() , to delete prefilled values 
+    print("ss",ordersCount)
+    if request.method == 'POST':
+        formset = orderFormSet(request.POST,instance = customer)
+        if formset.is_valid():
+            formset.save() 
+            return redirect('/customer/'+pkm)
+
+    context = {'formset':formset}
+    return render(request, 'accountss/Create_multiple_orders_form.html',context)
+
+``` 
+in this file we notice **inlineformset_factory** which creates the class architecture that we will create an instance or object of that class then interact with it as you did with form class and you can loop over it in the template and to style data freely you can add  **{{ formset.management_form }}** It is used to keep track of how many form instances are being displayed and to keep track of which one is being edited and post it's data
 
 

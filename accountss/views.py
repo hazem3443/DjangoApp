@@ -1,6 +1,7 @@
 from django.views.decorators.csrf import requires_csrf_token
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.forms import inlineformset_factory
 
 from .models import *
 
@@ -34,6 +35,7 @@ def customer(request, pk):
     context = {'customer':customer, 'orders':orders,'orders_count':orders_count}
     return render(request, 'accountss/customer.html', context)
 
+@requires_csrf_token
 def createOrder(request):
     form = OrderForm() #this is for the first form creation according to fields in the form
     if request.method == 'POST':
@@ -47,6 +49,7 @@ def createOrder(request):
     context = {'form':form}
     return render(request, 'accountss/order_form.html',context)
 
+@requires_csrf_token
 def updateOrder(request, pku):
     order = Order.objects.get(id=pku)
     form = OrderForm(instance=order)
@@ -70,7 +73,18 @@ def deleteOrder(request,pkd):
 
     return render(request, 'accountss/delete.html', context)
 
+@requires_csrf_token
+def createMultipleOrder(request,pkm):
+    customer = Customer.objects.get(id=pkm)
+    ordersCount = Order.objects.filter(customer=pkm).count()
+    orderFormSet = inlineformset_factory(Customer, Order, fields =('product', 'status'),extra=1 )
+    formset = orderFormSet(instance = customer) #also you can add queryset=Order.objects.none() , to delete prefilled values 
+    print("ss",ordersCount)
+    if request.method == 'POST':
+        formset = orderFormSet(request.POST,instance = customer)
+        if formset.is_valid():
+            formset.save() 
+            return redirect('/customer/'+pkm)
 
-
-
-    
+    context = {'formset':formset}
+    return render(request, 'accountss/Create_multiple_orders_form.html',context)

@@ -10,4 +10,5 @@ urlpatterns = [
     path('update_order/<str:pku>', views.updateOrder, name='update_order'),
     path('delete_order/<str:pkd>', views.deleteOrder, name='delete_order'),
 
+    path('create_order/<str:pkm>', views.createMultipleOrder, name='create_multiple_order'),
 ]
