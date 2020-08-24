@@ -624,3 +624,52 @@ def createMultipleOrder(request,pkm):
 in this file we notice **inlineformset_factory** which creates the class architecture that we will create an instance or object of that class then interact with it as you did with form class and you can loop over it in the template and to style data freely you can add  **{{ formset.management_form }}** It is used to keep track of how many form instances are being displayed and to keep track of which one is being edited and post it's data
 
 
+## using Filter package with django
+to install this package run command ``` pip3 install django-package ```
+then we need to let django know about this package with settings file within installed apps 
+```
+INSTALLED_APPS = [
+    .....
+    'django_filters',
+]
+```
+then we can create a files such as form.py we will call it **filter.py** with this code 
+```
+import django_filters
+
+from .models import *
+
+class orderfilter(django_filters.FilterSet):
+    class Meta:
+        model = Order
+        fields = '__all__'
+```
+then within our view here we are gona test this out with **customer** view usch that
+```
+.........
+from .filters import orderfilter
+......
+def customer(request, pk):
+    ....
+    myfilter = orderfilter(request.GET, queryset=orders)
+    orders = myfilter.qs
+
+    context = {'customer':customer, 'orders':orders,'orders_count':orders_count,'myfilter':myfilter}
+    return render(request, 'accountss/customer.html', context)
+
+```
+then within **customer.html** we can write this within search section ``` {{myfilter.form}} ```
+this will put a filter field for each column in the model but to add a date range filter you can do such so
+```
+    start_date = DateFilter(field_name="date_created", lookup_expr='gte')
+```
+also you can execlude filter parameters from all selected fields
+
+and you also can do a charfield search such that
+```
+    note = CharFilter(field_name='note', lookup_expr='icontains')
+```
+**icontaines** mean ignore case sensitivity
+
+we have added a note field to model order and migrated this change to database
+

@@ -7,6 +7,8 @@ from .models import *
 
 from .forms import OrderForm
 
+from .filters import orderfilter
+
 # Create your views here.
 def home(request):
     orders = Order.objects.all() 
@@ -32,7 +34,11 @@ def customer(request, pk):
 
     orders = customer.order_set.all()
     orders_count = orders.count()
-    context = {'customer':customer, 'orders':orders,'orders_count':orders_count}
+
+    myfilter = orderfilter(request.GET, queryset=orders)
+    orders = myfilter.qs
+
+    context = {'customer':customer, 'orders':orders,'orders_count':orders_count,'myfilter':myfilter}
     return render(request, 'accountss/customer.html', context)
 
 @requires_csrf_token
