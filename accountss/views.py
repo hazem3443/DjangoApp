@@ -9,6 +9,8 @@ from .forms import OrderForm
 
 from .filters import orderfilter
 
+from django.core.paginator import Paginator
+
 # Create your views here.
 def home(request):
     orders = Order.objects.all() 
@@ -27,7 +29,17 @@ def home(request):
 def products(request):
     products = Product.objects.all()
     
-    return render(request, 'accountss/products.html', {'products':products})
+    paginator = Paginator(products, 1)
+    current_page_number = request.GET.get('page')
+    page_obj = paginator.get_page(current_page_number)
+    
+    print(paginator.num_pages)
+    print(current_page_number)
+    if current_page_number :
+        if int(current_page_number) > (paginator.num_pages) or int(current_page_number) <= 0:
+            print("page not found")
+
+    return render(request, 'accountss/products.html', {'page_obj': page_obj, 'page_number':current_page_number})
     
 def customer(request, pk):
     customer = Customer.objects.get(id=pk)

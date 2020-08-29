@@ -673,3 +673,50 @@ and you also can do a charfield search such that
 
 we have added a note field to model order and migrated this change to database
 
+## Pagination
+
+pagination means make pages of your data and grap data with certain offset to view it correctly from database
+first **views.py**
+```
+...
+from django.core.paginator import Paginator
+...
+#within products view function 
+    paginator = Paginator(products, 2)
+    current_page_number = request.GET.get('page')
+    page_obj = paginator.get_page(current_page_number)
+
+    #this section to validate an available page 
+    print(paginator.num_pages)
+    print(current_page_number)
+    if current_page_number :
+        if int(current_page_number) > (paginator.num_pages) or int(current_page_number) <= 0:
+            print("page not found")
+    return render(request, 'accountss/products.html', {'page_obj': page_obj, 'page_number':current_page_number})
+...
+```
+
+then within our template you can choose what ever pagination bar style you want and then deploy it to your template but you need to take care of some things such that 
+-checks with if statment within your template such that
+```
+{% if page_obj.has_next %}
+<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+  <span aria-hidden="true" >&raquo;</span>
+  <span class="sr-only">Next</span>
+</a>
+{% else %}
+<a class="page-link disabled" aria-label="Next">
+    <span aria-hidden="true" >&raquo;</span>
+    <span class="sr-only">Next</span>
+  </a>
+{% endif %}
+```
+this code check if next page exists in our page data object also you need to take care of casting during checking arguments within if condition such that
+```
+{% if page_number == page.number|truncatechars:14 or not page_number and page.number|truncatechars:14 == '1'  %}
+    active
+{% endif %}
+```
+this showes nested condition with casting 
+
+also you can look at **products.html** to closely understand pagination functionality 
