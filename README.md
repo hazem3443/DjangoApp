@@ -932,3 +932,7 @@ user.groups.add(group)
 ```
 
 decorator pattern is a very useful way to extend functions and classes with your specific feature
+
+**Notes**
+- till now you need to isolate admin panel from user panel by creating relation to user and customer tables which is one to one relationship because each user has a customer profile even if it is in admin or customer group 
+- note that you can access current logged in user data such that ` request.user.id `,` request.user.username `, ` request.user.email ` 

@@ -42,6 +42,13 @@ def registerPage(request):
                 password = request.POST.get('password1')
                 user = authenticate(request, username=username, password=password)
                 login(request, user)
+
+                #set user to customer 
+                Customer.objects.create(
+                    user=user,
+                    name=request.user.username,
+                    email=request.user.email,
+                    )
                 return redirect('home')
                 # messages.success(request, 'Account Created')
                 # return redirect('loginPage')
@@ -53,7 +60,6 @@ def registerPage(request):
 @unauthenticated_user
 def loginPage(request):
     nextt = request.GET.get('next', '/')
-
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -193,6 +199,15 @@ def createMultipleOrder(request,pkm):
     context = {'formset':formset}
     return render(request, 'accountss/Create_multiple_orders_form.html',context)
 
+@login_required(login_url='loginPage')
+@allowed_users(allowed_roles=['customers'])
 def userPage(request):
-    context = {}
+    orders = request.user.customer.order_set.all()
+    
+    total_orders = orders.count()
+    delivered = orders.filter(status= 'Delivered').count()
+    pending = orders.filter(status= 'Pending').count()
+
+    print('orders: ',orders)
+    context = {'orders':orders,'total_orders':total_orders, 'delivered':delivered, 'pending':pending}
     return render(request, 'accountss/user.html',context)
