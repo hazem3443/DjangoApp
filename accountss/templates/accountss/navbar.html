@@ -1,7 +1,6 @@
 {% load static %}
 
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
   <img class="nav-small-hazem" src="{% static 'images/logo.png' %}">
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -10,7 +9,19 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link active" href="{% url 'home' %}">Dashboard</a>
         <a class="nav-item nav-link" href="{% url 'products'%}">Products</a>
-        
+
+        <span class="text-muted float-right mr-10 btn btn-dark lz" data-toggle="collapse" data-target="#logoutbutton" >Hi, {{request.user}}  </span>
+        <a id="logoutbutton"  class="collapse  btn btn-dark btn-block lz" href="{% url 'logout' %}">Logout</a>
+      
       </div>
     </div>
+
+    <span class="text-muted float-right hz  btn btn-light"  data-toggle="collapse" data-target="#logoutbutton" style="font-size: 18px;">Hi, {{request.user}}  </span>
+    
+    <span id="logoutbutton" class="collapse " style="margin-left: 10px;"><a class="text-muted nav-item nav-link hz btn btn-light" href="{% url 'logout' %}" style="font-size: 18px;">Logout</a></span>
+    <style>
+    @media (max-width: 991px) { .hz{display: none;} .lz{display: inline;}}
+    @media (min-width: 992px) { .hz{display: inline;} .lz{display: none;}}
+
+    </style>
   </nav>

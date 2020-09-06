@@ -720,3 +720,148 @@ this code check if next page exists in our page data object also you need to tak
 this showes nested condition with casting 
 
 also you can look at **products.html** to closely understand pagination functionality 
+
+
+## User Registeration and Login 
+-first we need to create a urls and views as follows 
+
+```
+path('register/', views.registerPage,name='registerPage'),
+path('login/', views.loginPage,name='loginPage'),
+path('logout/', views.logoutUser,name='logout'),
+```
+```
+...
+
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+
+from django.contrib.auth.models import User
+from django import forms
+
+from .forms import OrderForm, CreateUserForm
+
+def registerPage(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+    else:
+        form = CreateUserForm()
+        nextt = request.GET.get('next', '/default/url/')
+
+        if request.method == 'POST':
+            if request.POST.getlist('agree-term'):
+                form = CreateUserForm(request.POST)
+                if form.is_valid():
+                    form.save()
+                    #login new created user
+                    username = request.POST.get('username')
+                    password = request.POST.get('password1')
+                    user = authenticate(request, username=username, password=password)
+                    login(request, user)
+                    if nextt:
+                        return redirect(nextt)
+                    else:
+                        return redirect('home')
+                    # messages.success(request, 'Account Created')
+                    # return redirect('loginPage')
+            else:
+                messages.success(request, 'Please agree all statments to be able to log in')
+
+        context = {'form':form}
+        return render(request, 'accountss/RegisterANDlogin_Templates/register.html', context)
+
+def loginPage(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+    else:
+        nextt = request.GET.get('next', '/default/url/')
+        
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                if request.POST.getlist('remember-me'):
+                    request.session.set_expiry(1209600*10)
+                    print("cheched:time:8")
+                else:
+                    request.session.set_expiry(0)
+                    print("not checked")
+
+                if nextt:
+                    return redirect(nextt)
+                else:
+                    return redirect('home')
+ 
+            else:
+                if User.objects.filter(username=username).exists():
+                    messages.info(request, "Wrong Password")
+                else:
+                    messages.info(request, "this user is not signed up")
+        return render(request, 'accountss/RegisterANDlogin_Templates/login.html')
+
+def logoutUser(request):
+    logout(request)
+    return redirect('loginPage')
+```
+to simplify this view code we need to illustrate **UserCreationForm** which is a django form class having all user fields already created for us with a very helpfull methods to create a form with selected fields we need to create a form class that inherites from this class such that with **forms.py** file
+
+```
+from django.contrib.auth.forms import UserCreationForm
+
+class CreateUserForm(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'placeholder':_('Username')})
+        self.fields['email'].widget.attrs.update({'placeholder':_('Email')})
+        self.fields['password1'].widget.attrs.update({'placeholder':_('Password')})        
+        self.fields['password2'].widget.attrs.update({'placeholder':_('Repeat password')})
+    
+    class Meta:
+        model = User
+        fields = ['username','email','password1','password2']
+```
+here we re-implement the constructor with palceholder value also we can do that with js
+so then back to our view we create the registration form with these steps
+
+- check if the current user is authenticated to redirect to home or if not go to login pasge
+- then create a new form of class **CreateUserForm** with **POSTED** data from the user and saves it 
+- then login this newly created user with login function
+- redirect to previous accessed page that was required authentication this check is being done with decorated method called 
+```
+@login_required(login_url='loginPage')
+```
+which is being called before our view to redirect to **loginPage** if the current user is not authenticated
+
+also you can send a flash messages to the user to inform user of some informations such that
+```
+    messages.success(request, 'Please agree all statments to be able to log in')
+```
+and in the template you can do such that to render the messages all at once 
+```
+{% for message in messages %}
+    <p class="message" > {{ message }} </p>
+{% endfor %}
+```
+and to handle errors within your form you can directly render form errors and style them such that
+
+```
+{% if form.errors %}
+    <div class="validation">
+        {% for key, value in form.errors.items %}
+            <li>{{ value|striptags }}</li>
+
+        {% endfor %}
+    </div>
+{% endif %}
+```
+
+also don't forget loading static files and use **static** within static files path to enable django to read and send it back to the client
+
+and with login operation we use **authentication** method first to ensure that this username and password are correct then login our user and if not authenticated validate that he is already signed up or not to redirect him to password reset or to sign up page and set the cookie expiry time to a certain value (2*10 weeks) to be able to remember this user even if he close the browser in the next time he access our site or forget him as soon as he close the browser with ecpiry time equal to 0
+
+and logout view just logs the user out with logout function and this action is taken with button click and don't need to render a template

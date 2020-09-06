@@ -2,7 +2,21 @@ from django.forms import ModelForm, Textarea
 from django import forms
 from .models import Order
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
+class CreateUserForm(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'placeholder':_('Username')})
+        self.fields['email'].widget.attrs.update({'placeholder':_('Email')})
+        self.fields['password1'].widget.attrs.update({'placeholder':_('Password')})        
+        self.fields['password2'].widget.attrs.update({'placeholder':_('Repeat password')})
+    
+    class Meta:
+        model = User
+        fields = ['username','email','password1','password2']
+        
 class OrderForm(ModelForm): 
     def __init__(self, *args, **kwargs):
         super(OrderForm, self).__init__(*args, **kwargs)
