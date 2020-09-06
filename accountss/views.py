@@ -7,10 +7,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 
 from django.contrib.auth.models import User
 from django import forms
-
 
 from .models import *
 
@@ -18,75 +18,74 @@ from .forms import OrderForm, CreateUserForm
 
 from .filters import orderfilter
 
+from .decorators import unauthenticated_user, allowed_users, admin_only
+
 from django.core.paginator import Paginator
 
 # Create your views here.
-
+@unauthenticated_user
 def registerPage(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        form = CreateUserForm()
-        nextt = request.GET.get('next', '/default/url/')
+    form = CreateUserForm()
+    nextt = request.GET.get('next', '/')
 
-        if request.method == 'POST':
-            if request.POST.getlist('agree-term'):
-                form = CreateUserForm(request.POST)
-                if form.is_valid():
-                    form.save()
-                    #login new created user
-                    username = request.POST.get('username')
-                    password = request.POST.get('password1')
-                    user = authenticate(request, username=username, password=password)
-                    login(request, user)
-                    if nextt:
-                        return redirect(nextt)
-                    else:
-                        return redirect('home')
-                    # messages.success(request, 'Account Created')
-                    # return redirect('loginPage')
-            else:
-                messages.success(request, 'Please agree all statments to be able to log in')
-        context = {'form':form}
-        return render(request, 'accountss/RegisterANDlogin_Templates/register.html', context)
+    if request.method == 'POST':
+        if request.POST.getlist('agree-term'):
+            form = CreateUserForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+                #set new user to customers group
+                group = Group.objects.get(name='customers')
+                user.groups.add(group)
 
-def loginPage(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        nextt = request.GET.get('next', '/default/url/')
-        
-        if request.method == 'POST':
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
+                #login new created user
+                username = request.POST.get('username')
+                password = request.POST.get('password1')
+                user = authenticate(request, username=username, password=password)
                 login(request, user)
-                if request.POST.getlist('remember-me'):
-                    request.session.set_expiry(1209600*10)
-                    print("cheched:time:8")
-                else:
-                    request.session.set_expiry(0)
-                    print("not checked")
+                return redirect('home')
+                # messages.success(request, 'Account Created')
+                # return redirect('loginPage')
+        else:
+            messages.success(request, 'Please agree all statments to be able to log in')
+    context = {'form':form}
+    return render(request, 'accountss/RegisterANDlogin_Templates/register.html', context)
 
-                if nextt:
-                    return redirect(nextt)
-                else:
-                    return redirect('home')
- 
+@unauthenticated_user
+def loginPage(request):
+    nextt = request.GET.get('next', '/')
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            if request.POST.getlist('remember-me'):
+                request.session.set_expiry(1209600*10)
+                print("cheched:time:8")
             else:
-                if User.objects.filter(username=username).exists():
-                    messages.info(request, "Wrong Password")
-                else:
-                    messages.info(request, "this user is not signed up")
-        return render(request, 'accountss/RegisterANDlogin_Templates/login.html')
+                request.session.set_expiry(0)
+                print("not checked")
+
+            if nextt:
+                return redirect(nextt)
+            else:
+                return redirect('home')
+
+        else:
+            if User.objects.filter(username=username).exists():
+                messages.info(request, "Wrong Password")
+            else:
+                messages.info(request, "this user is not signed up")
+    return render(request, 'accountss/RegisterANDlogin_Templates/login.html')
 
 def logoutUser(request):
     logout(request)
     return redirect('loginPage')
 
 @login_required(login_url='loginPage')
+@admin_only
 def home(request):
     orders = Order.objects.all() 
     customers = Customer.objects.all()
@@ -102,6 +101,7 @@ def home(request):
     return render(request, 'accountss/Dashboard.html',context)
 
 @login_required(login_url='loginPage')
+@allowed_users(allowed_roles=['admin'])
 def products(request):
     products = Product.objects.all()
     
@@ -118,6 +118,7 @@ def products(request):
     return render(request, 'accountss/products.html', {'page_obj': page_obj, 'page_number':current_page_number})
 
 @login_required(login_url='loginPage')
+@allowed_users(allowed_roles=['admin'])
 def customer(request, pk):
     customer = Customer.objects.get(id=pk)
 
@@ -132,6 +133,7 @@ def customer(request, pk):
 
 @requires_csrf_token
 @login_required(login_url='loginPage')
+@allowed_users(allowed_roles=['admin'])
 def createOrder(request):
     form = OrderForm() #this is for the first form creation according to fields in the form
     if request.method == 'POST':
@@ -147,6 +149,7 @@ def createOrder(request):
 
 @requires_csrf_token
 @login_required(login_url='loginPage')
+@allowed_users(allowed_roles=['admin'])
 def updateOrder(request, pku):
     order = Order.objects.get(id=pku)
     form = OrderForm(instance=order)
@@ -162,6 +165,7 @@ def updateOrder(request, pku):
 
 @requires_csrf_token
 @login_required(login_url='loginPage')
+@allowed_users(allowed_roles=['admin'])
 def deleteOrder(request,pkd): 
     item = Order.objects.get(id=pkd)
     context = {'item': item}
@@ -173,6 +177,7 @@ def deleteOrder(request,pkd):
 
 @requires_csrf_token
 @login_required(login_url='loginPage')
+@allowed_users(allowed_roles=['admin'])
 def createMultipleOrder(request,pkm):
     customer = Customer.objects.get(id=pkm)
     ordersCount = Order.objects.filter(customer=pkm).count()
@@ -187,3 +192,7 @@ def createMultipleOrder(request,pkm):
 
     context = {'formset':formset}
     return render(request, 'accountss/Create_multiple_orders_form.html',context)
+
+def userPage(request):
+    context = {}
+    return render(request, 'accountss/user.html',context)

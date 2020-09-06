@@ -831,7 +831,7 @@ so then back to our view we create the registration form with these steps
 - check if the current user is authenticated to redirect to home or if not go to login pasge
 - then create a new form of class **CreateUserForm** with **POSTED** data from the user and saves it 
 - then login this newly created user with login function
-- redirect to previous accessed page that was required authentication this check is being done with decorated method called 
+- redirect to previous accessed page that was required authentication this check is being done with decorated method called (only with login not registeration it is not secure doing it with registeration)
 ```
 @login_required(login_url='loginPage')
 ```
@@ -865,3 +865,70 @@ also don't forget loading static files and use **static** within static files pa
 and with login operation we use **authentication** method first to ensure that this username and password are correct then login our user and if not authenticated validate that he is already signed up or not to redirect him to password reset or to sign up page and set the cookie expiry time to a certain value (2*10 weeks) to be able to remember this user even if he close the browser in the next time he access our site or forget him as soon as he close the browser with ecpiry time equal to 0
 
 and logout view just logs the user out with logout function and this action is taken with button click and don't need to render a template
+
+## Decorator Pattern
+- Decorator pattern allows a user to add new functionality to an existing object without altering its structure. This type of design pattern comes under structural pattern as this pattern acts as a wrapper to existing class.
+
+we will use it to wrap our views with validation process such as checking authentication and user groups 
+
+first create **decorators.py** file and include wrappers within our **views.py** file 
+and the decorators we build is 
+```
+from django.http import HttpResponse
+from django.shortcuts import redirect
+
+def unauthenticated_user(view_func):
+    def wrapper_func(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('home')
+        else:
+            return view_func(request, *args, **kwargs)
+    
+    return wrapper_func
+
+def allowed_users(allowed_roles=[]):
+    def decorator(view_func):
+        def wrapper_func(request, *args, **kwargs):
+            
+            group = None
+            if request.user.groups.exists():
+                group = request.user.groups.all()[0].name
+            
+            if group in allowed_roles:
+                return view_func(request, *args, **kwargs)
+            else:
+                return HttpResponse('<h1><p>Not Authorized</p></h1>')
+                
+        return wrapper_func
+    return decorator
+
+def admin_only(view_func):
+    def wrapper_func(request, *args, **kwargs):
+        
+        group = None
+        if request.user.groups.exists():
+            group = request.user.groups.all()[0].name
+        
+        if group == 'admin':
+            return view_func(request, *args, **kwargs)
+        elif group == 'customers':
+            return redirect('user-page')
+        else:
+            return HttpResponse('<h1><p>Not Authorized you need to define a Group</p></h1>')
+    return wrapper_func
+```
+first one check if user is authenticated to redirect him to home page or if not return the decorated view or the function below 
+
+second one takes an argument which is a group that this view belongs to, then within this wrapper we get the current user group and check if this group is within the **allowed_roles** 
+
+and third one just re-implement the second one without input but you shouldn't do this in your production app because it is static group check and the first one makes it more dynamic with newly created Groups
+
+and also you need to define a user group with each user creation within **registration View** such that while saving the new user data
+```
+user = form.save()
+#set new user to customers group
+group = Group.objects.get(name='customers')
+user.groups.add(group)
+```
+
+decorator pattern is a very useful way to extend functions and classes with your specific feature
