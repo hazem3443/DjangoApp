@@ -1,6 +1,6 @@
 from django.forms import ModelForm, Textarea
 from django import forms
-from .models import Order
+from .models import Order, Customer
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -50,3 +50,13 @@ class OrderForm(ModelForm):
             'caps': 'This field if case sensitive',
         } 
 
+class CustomerForm(ModelForm):
+    class Meta:
+        model = Customer
+        fields = '__all__'
+        exclude = ['user']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'id':'fullName'}),
+            'email': forms.TextInput(attrs={'class': 'form-control', 'id':'email'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'id':'phone'}),
+        }

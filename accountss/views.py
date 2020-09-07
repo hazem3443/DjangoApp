@@ -14,13 +14,16 @@ from django import forms
 
 from .models import *
 
-from .forms import OrderForm, CreateUserForm
+from .forms import OrderForm, CreateUserForm, CustomerForm
 
 from .filters import orderfilter
 
 from .decorators import unauthenticated_user, allowed_users, admin_only
 
 from django.core.paginator import Paginator
+
+from os import path
+import os
 
 # Create your views here.
 @unauthenticated_user
@@ -211,3 +214,24 @@ def userPage(request):
     print('orders: ',orders)
     context = {'orders':orders,'total_orders':total_orders, 'delivered':delivered, 'pending':pending}
     return render(request, 'accountss/user.html',context)
+
+@login_required(login_url='loginPage')
+@allowed_users(allowed_roles=['customers'])
+def user_settings(request):
+    customer = request.user.customer
+    # print("customer pic: ",customer.profile_pic)
+    # print("DIR: ",os.getcwd()+'/static/images/profile_pics/')
+    direct = os.getcwd()+'/static/images/profile_pics/'
+    direct_temp = os.getcwd()+'/static/images/'
+    if not( os.path.isfile(direct + str(customer.profile_pic)) or os.path.isfile(direct_temp + str(customer.profile_pic)) ):
+        customer.profile_pic = 'default_profile_pic-breach.svg'
+
+    form = CustomerForm(instance=customer)
+
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, request.FILES, instance=customer)
+        if form.is_valid():
+            form.save()
+            
+    context = {'form':form}
+    return render(request, 'accountss/account_settings.html',context)

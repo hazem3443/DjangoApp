@@ -936,3 +936,157 @@ decorator pattern is a very useful way to extend functions and classes with your
 **Notes**
 - till now you need to isolate admin panel from user panel by creating relation to user and customer tables which is one to one relationship because each user has a customer profile even if it is in admin or customer group 
 - note that you can access current logged in user data such that ` request.user.id `,` request.user.username `, ` request.user.email ` 
+
+## Image Upload
+
+images is being upoladed to database with it's name not a written image bits and these images is keept in static folder directory and then recall these images with uploaded file name appended to a token to fetch this image
+
+- first we need to create a field in database to be able to upload this image with default value such that in **customer model** within **models.py** 
+```
+    profile_pic = models.ImageField(default="default_profile_pic.svg", null=True, blank=True)
+```
+then migrate these changes 
+
+- second we need to create a form that is going to be submitted by user within **forms.py**
+
+```
+from .models import Order, Customer
+....
+class CustomerForm(ModelForm):
+    class Meta:
+        model = Customer
+        fields = '__all__'
+        exclude = ['user']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'id':'fullName'}),
+            'email': forms.TextInput(attrs={'class': 'form-control', 'id':'email'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'id':'phone'}),
+        }
+
+```
+
+this model execlude user relation from form submittion because it is not a user issue it is admin side
+
+- third we need to create url for our new settings route that is going to be build for customer info modification such that
+```
+...
+    path('user_settings/', views.user_settings,name='account'),
+...
+```
+
+- fourth create the view that is going to redirect this route to template file such that
+```
+@login_required(login_url='loginPage')
+@allowed_users(allowed_roles=['customers'])
+def user_settings(request):
+    customer = request.user.customer
+    # print("customer pic: ",customer.profile_pic)
+    # print("DIR: ",os.getcwd()+'/static/images/profile_pics/')
+    direct = os.getcwd()+'/static/images/profile_pics/'
+    direct_temp = os.getcwd()+'/static/images/'
+    if not( os.path.isfile(direct + str(customer.profile_pic)) or os.path.isfile(direct_temp + str(customer.profile_pic)) ):
+        customer.profile_pic = 'default_profile_pic-breach.svg'
+
+    form = CustomerForm(instance=customer)
+
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, request.FILES, instance=customer)
+        if form.is_valid():
+            form.save()
+            
+    context = {'form':form}
+    return render(request, 'accountss/account_settings.html',context)
+```
+first we need to validate that the image saved is in the directory or the default image in it's directory so in case of this images had been deleted or any breach has been occured the default image is been set to all preloaded form content and saved with the default one  
+
+- lastly we need to create a template for our settings such that
+```
+{% extends 'accountss/main.html'%}
+{% load static %}
+{% block content%}
+
+
+<div class="container-fluid" >
+    <div class="col-md-9">
+        <div class="container content clear-fix">
+        
+        <h2 class="mt-0.5 mb-4">Profile Settings</h2>
+        
+        <div class="row" style="height:100%">
+        
+            <div class="col-md-3">
+                <div href=# class="d-inline"><img alt="Avatar" src="{% if request.user.customer.profile_pic %} {{ request.user.customer.profile_pic.url }}  {% endif %}" width=130px height=130px style="margin:0;border-radius: 50%;"><br>
+                    <p class="pl-2 mt-2">
+                        <a href="javascript:(function(){
+                            $('#id_profile_pic').click();
+                            })()" class="btn edit_image" style="color:#8f9096;font-weight:600" >Edit Picture</a>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-9">    
+                <div class="container">
+                
+                    <form name="myform" method="POST" action="" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for=fullName>Full Name</label>
+                            {{form.name}}
+                        </div>
+                        <div class="form-group">
+                            <label for=email>Email</label>
+                            {{form.email}}
+                        </div>
+                        <div class="form-group">
+                            <label for=phone>Phone</label>
+                            {{form.phone}}
+                        </div> 
+                        
+                        <div class="custom-file mb-3" hidden >
+                            {{ form.profile_pic }}
+                        </div>
+                        
+                        <div class="row mt-5">
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+                            </div>
+                            <div class="col">
+                            <a href=" {% url 'user-page' %} " type="button" class="btn btn-default btn-block">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function (){
+        
+        $('#id_profile_pic').on('change', function () {
+            readPath(this);
+        })
+
+        function readPath(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    console.log(e);
+                    $('div img').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    });
+</script>
+
+
+{% endblock %}
+```
+
+all things ara as we know except one thing the link of the edit image is performing a click on form choose file button with void **href** or empty one so the default href is '' which prevents our click to be performed properly
+and the update uploaded image is done with below script code which reads uploaded image by it's id and then apply it to img tag without posting it to the server all of this code here is client side

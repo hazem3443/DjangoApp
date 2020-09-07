@@ -10,14 +10,18 @@
         {% if request.user.is_staff %}
         <a class="nav-item nav-link active" href="{% url 'home' %}">Dashboard</a>
         <a class="nav-item nav-link" href="{% url 'products'%}">Products</a>
+        {% else%}
+          <li class="nav-item" >
+            <a class="nav-link" href="{% url 'account' %}">Settings</a>
+          </li>
         {% endif %}
-        <span class="text-muted float-right mr-10 btn btn-dark lz" data-toggle="collapse" data-target="#logoutbutton" >Hi, {{request.user}}  </span>
+        <span class="text-muted float-right mr-10 btn btn-dark lz" data-toggle="collapse" data-target="#logoutbutton" >Hi, {{ request.user.customer }}  </span>
         <a id="logoutbutton"  class="collapse  btn btn-dark btn-block lz" href="{% url 'logout' %}">Logout</a>
       
       </div>
     </div>
 
-    <span class="text-muted float-right hz  btn btn-light"  data-toggle="collapse" data-target="#logoutbutton" style="font-size: 18px;">Hi, {{request.user}}  </span>
+    <span class="text-muted float-right hz  btn btn-light"  data-toggle="collapse" data-target="#logoutbutton" style="font-size: 18px;">Hi, {{request.user.customer}}  </span>
     
     <span id="logoutbutton" class="collapse " style="margin-left: 10px;"><a class="text-muted nav-item nav-link hz btn btn-light" href="{% url 'logout' %}" style="font-size: 18px;">Logout</a></span>
     <style>
