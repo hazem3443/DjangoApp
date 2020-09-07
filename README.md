@@ -1090,3 +1090,13 @@ first we need to validate that the image saved is in the directory or the defaul
 
 all things ara as we know except one thing the link of the edit image is performing a click on form choose file button with void **href** or empty one so the default href is '' which prevents our click to be performed properly
 and the update uploaded image is done with below script code which reads uploaded image by it's id and then apply it to img tag without posting it to the server all of this code here is client side
+
+
+
+
+
+
+
+
+
+

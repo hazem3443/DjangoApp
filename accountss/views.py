@@ -22,7 +22,6 @@ from .decorators import unauthenticated_user, allowed_users, admin_only
 
 from django.core.paginator import Paginator
 
-from os import path
 import os
 
 # Create your views here.
@@ -221,17 +220,30 @@ def user_settings(request):
     customer = request.user.customer
     # print("customer pic: ",customer.profile_pic)
     # print("DIR: ",os.getcwd()+'/static/images/profile_pics/')
+    
     direct = os.getcwd()+'/static/images/profile_pics/'
-    direct_temp = os.getcwd()+'/static/images/'
-    if not( os.path.isfile(direct + str(customer.profile_pic)) or os.path.isfile(direct_temp + str(customer.profile_pic)) ):
-        customer.profile_pic = 'default_profile_pic-breach.svg'
+    #set default image this occured in case of a Breach attack that deletes all saved images
+    if not os.path.isfile(direct + str(customer.profile_pic)) :
+        customer.profile_pic = 'default_profile_pic.svg'
 
     form = CustomerForm(instance=customer)
 
     if request.method == 'POST':
         form = CustomerForm(request.POST, request.FILES, instance=customer)
         if form.is_valid():
-            form.save()
+            previous_img =  Customer.objects.get(user = request.user.id).profile_pic
             
+            try:
+                print('current img', customer.profile_pic)
+                print('previous img', previous_img)
+                # TODO: change default profile picture name to a unique name to avoid rollback to previous img
+                if not (str(customer.profile_pic) in str(previous_img) ) and (str(previous_img) != "default_profile_pic.svg"):
+                    print("not the same image or not the default image ", (str(customer.profile_pic) in str(previous_img) ))
+                    os.remove(direct+str(previous_img))
+            except:
+                print("can't delete file it is already deleted")
+            # customer.profile_pic = str(customer.profile_pic).replace('.', '+=_'+hash_token+'.')
+            form.save()
+    
     context = {'form':form}
     return render(request, 'accountss/account_settings.html',context)
