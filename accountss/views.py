@@ -24,6 +24,7 @@ from django.core.paginator import Paginator
 
 import os
 
+
 # Create your views here.
 @unauthenticated_user
 def registerPage(request):
@@ -224,7 +225,7 @@ def user_settings(request):
     direct = os.getcwd()+'/static/images/profile_pics/'
     #set default image this occured in case of a Breach attack that deletes all saved images
     if not os.path.isfile(direct + str(customer.profile_pic)) :
-        customer.profile_pic = 'default_profile_pic.svg'
+        customer.profile_pic = 'c188345d-a2ef-4b25-9d8a-ac9137926485-default_profile_pic.svg'
 
     form = CustomerForm(instance=customer)
 
@@ -234,10 +235,10 @@ def user_settings(request):
             previous_img =  Customer.objects.get(user = request.user.id).profile_pic
             
             try:
-                print('current img', customer.profile_pic)
+                print('current img', customer.profile_pic.name)
                 print('previous img', previous_img)
-                # TODO: change default profile picture name to a unique name to avoid rollback to previous img
-                if not (str(customer.profile_pic) in str(previous_img) ) and (str(previous_img) != "default_profile_pic.svg"):
+                # can't upload svg images so the server didn't notice that the image changed and return 304(not modified) error response 
+                if not (str(customer.profile_pic) in str(previous_img) ) and (str(previous_img) != "c188345d-a2ef-4b25-9d8a-ac9137926485-default_profile_pic.svg"):
                     print("not the same image or not the default image ", (str(customer.profile_pic) in str(previous_img) ))
                     os.remove(direct+str(previous_img))
             except:

@@ -5,17 +5,18 @@ from django.urls import reverse
 import uuid
 import os
 
-def get_file_path(instance, filename):
+def get_encoded_file_name(instance, filename):
     # ext = filename.split('.')[-1]
-    filename = "%s.%s" % (uuid.uuid4(), filename)
+    filename = "%s" % (uuid.uuid4())
     return os.path.join('', filename)
+
 # Create your models here.
 class Customer(models.Model):
     user  = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE) #whenever the user is deleted delete that relation to this customer
     name  = models.CharField(max_length=200, null=True)
     phone = models.CharField(max_length=200, null=True)
     email = models.CharField(max_length=200, null=True)
-    profile_pic = models.ImageField(upload_to=get_file_path,default="default_profile_pic.svg", null=True, blank=True)
+    profile_pic = models.ImageField(upload_to=get_encoded_file_name,default="c188345d-a2ef-4b25-9d8a-ac9137926485-default_profile_pic.svg", null=True, blank=True)
 
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
