@@ -37,8 +37,6 @@ def registerPage(request):
             if form.is_valid():
                 user = form.save()
                 #set new user to customers group
-                group = Group.objects.get(name='customers')
-                user.groups.add(group)
 
                 #login new created user
                 username = request.POST.get('username')
@@ -46,12 +44,6 @@ def registerPage(request):
                 user = authenticate(request, username=username, password=password)
                 login(request, user)
 
-                #set user to customer 
-                Customer.objects.create(
-                    user=user,
-                    name=request.user.username,
-                    email=request.user.email,
-                    )
                 return redirect('home')
                 # messages.success(request, 'Account Created')
                 # return redirect('loginPage')

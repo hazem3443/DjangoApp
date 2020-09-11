@@ -1090,3 +1090,63 @@ first we need to validate that the image saved is in the directory or the defaul
 
 all things ara as we know except one thing the link of the edit image is performing a click on form choose file button with void **href** or empty one so the default href is '' which prevents our click to be performed properly
 and the update uploaded image is done with below script code which reads uploaded image by it's id and then apply it to img tag without posting it to the server all of this code here is client side
+
+## signals 
+
+- first signals is something like triggers in db that enables you to do some actions to any table according to the action done to that table and when it is done post or pre
+-to create the signal according to Django documentation we need to create a **signals.py** file which contains the signal creation method and definition which creates profile for the registered user such that
+```
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+from django.urls import path
+
+from .models import Customer
+
+
+def customer_profile(sender, instance, created, **kwargs):
+    if created:
+        group = Group.objects.get(name='customers') 
+        instance.groups.add(group)
+        #set user to customer 
+        Customer.objects.create(
+            user=instance,
+            name=instance.username,
+            email=instance.email,
+            )
+
+post_save.connect(customer_profile, sender=User)
+```
+created checkes that a new instance of that db model is been created this instance is an element of class sender which is passed by **User** 
+
+then you need to let django knows about your signals file by modifying **app.py** such that
+```
+from django.apps import AppConfig
+
+
+class AccountssConfig(AppConfig):
+    name = 'accountss'
+
+    def ready(self):
+        import accountss.signals
+```
+by importing an account signals file so in a ready method, Subclasses can override this method to perform initialization tasks such as registering signals. It is called as soon as the registry is fully populated.
+
+then you need to update **INSTALLED_APPS** such that
+```
+INSTALLED_APPS = [
+    ....
+    'accountss.apps.AccountssConfig',
+    ....
+]
+```
+
+so in conclusion 
+- modify accountss **settings.py** file with installed apps section with appConfig code to refer to modifications you will do below
+
+- modify **app.py** file to import your **signals.py** file which contain our signal definition and creation code
+
+- create **signals.py** file with signal definition and creation and type and when it will fire it's code 
+
+
+
