@@ -1149,4 +1149,3 @@ so in conclusion
 - create **signals.py** file with signal definition and creation and type and when it will fire it's code 
 
 
-
