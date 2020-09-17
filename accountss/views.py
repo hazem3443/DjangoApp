@@ -14,7 +14,7 @@ from django import forms
 
 from .models import *
 
-from .forms import OrderForm, CreateUserForm, CustomerForm
+from .forms import OrderForm, CreateUserForm, CustomerForm 
 
 from .filters import orderfilter
 
@@ -23,7 +23,6 @@ from .decorators import unauthenticated_user, allowed_users, admin_only
 from django.core.paginator import Paginator
 
 import os
-
 
 # Create your views here.
 @unauthenticated_user
@@ -240,3 +239,5 @@ def user_settings(request):
     
     context = {'form':form}
     return render(request, 'accountss/account_settings.html',context)
+
+

@@ -5,6 +5,10 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
+
+
+
+
 class CreateUserForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -60,3 +64,4 @@ class CustomerForm(ModelForm):
             'email': forms.TextInput(attrs={'class': 'form-control', 'id':'email'}),
             'phone': forms.TextInput(attrs={'class': 'form-control', 'id':'phone'}),
         }
+

@@ -45,6 +45,9 @@
                                 <input type="submit" name="signin" id="signin" class="form-submit" value="Log in"/>
                             </div>
                         </form>
+                        <br>
+                        <a class="signup-image-link" href="{% url 'password_reset' %}">Forgot Password?</a>
+
                         {% for message in messages %}
                         <p> {{ message }} </p>
                         {% endfor %}
