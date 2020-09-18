@@ -1149,3 +1149,57 @@ so in conclusion
 - create **signals.py** file with signal definition and creation and type and when it will fire it's code 
 
 
+## Password Reset views
+
+here we need to configure **SMTP** protocol to be able to send mails from your business email to your users such that 
+- first in **settings.py** 
+```
+#SMTP Configuration
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'hazemkhaledmohamed3443@gmail.com'
+EMAIL_HOST_PASSWORD = '7azem5aledmo7amed'
+``` 
+- second you need to enable less secure apps with your(admin gmail) gmail account
+
+then within our code we can use prebuild views as follows for our code:
+
+- first we need to create url pattterns in **urls.py** with names and parameter **template_name** also we need to import these views such that
+```
+....
+from django.contrib.auth import views as auth_views
+.....
+    path('password_reset/',auth_views.PasswordResetView.as_view(template_name="accountss/password_reset.html"), name = "password_reset"),
+    path('password_reset_sent/',auth_views.PasswordResetDoneView.as_view(template_name="accountss/password_reset_sent.html"), name = "password_reset_done"),
+    path('reset/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(template_name="accountss/password_reset_confirm.html"), name = "password_reset_confirm"),
+    path('password_reset_complete/',auth_views.PasswordResetCompleteView.as_view(template_name="accountss/password_reset_done.html"), name = "password_reset_complete"),
+```
+
+- second with these views we had specified template names which we need to create with 
+```
+{{form}}
+```
+and we can modify and style input element in the form with Jquery by it's **id**
+
+for example the first template **password_reset.html**
+```
+<form id="register-form" role="form" autocomplete="off" class="form" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-envelope color-blue"></i></span>
+            <label for="id_email" hidden></label>                          
+            {{form.email}}
+        </div>
+    </div>                  
+    <input name="Send email" class="form-group btn btn-lg btn-primary btn-block" value="Reset Password" type="Submit">                      
+</form>
+
+<script>
+    var inputelement = document.getElementById("id_email");
+    inputelement.setAttribute("class", "form-control");
+</script>
+```
