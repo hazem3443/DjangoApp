@@ -1203,3 +1203,4 @@ for example the first template **password_reset.html**
     inputelement.setAttribute("class", "form-control");
 </script>
 ```
+you can do this with all views and modify them as you want
