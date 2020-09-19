@@ -1204,3 +1204,5 @@ for example the first template **password_reset.html**
 </script>
 ```
 you can do this with all views and modify them as you want
+
+modify readme
