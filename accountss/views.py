@@ -202,7 +202,7 @@ def userPage(request):
     delivered = orders.filter(status= 'Delivered').count()
     pending = orders.filter(status= 'Pending').count()
 
-    print('orders: ',orders)
+    # print('orders: ',orders)
     context = {'orders':orders,'total_orders':total_orders, 'delivered':delivered, 'pending':pending}
     return render(request, 'accountss/user.html',context)
 

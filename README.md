@@ -1205,3 +1205,96 @@ for example the first template **password_reset.html**
 ```
 you can do this with all views and modify them as you want
 
+## fixtures
+this word means preconfigurations of database or data required for your app to start properly such as data insertions and loading lookups with proper data to allow backend to understand insertions
+such as user groups 
+
+to create fixtures you need to define a path of fixtures folder which will contain all your dumbed data to be loaded into our database such that within **settings.py** file 
+```
+FIXTURE_DIRS = (
+   '/fixtures/',
+)
+```
+
+then you need to define your fixture file in any format json or yaml such that
+**initial_data.json**
+```
+[
+  {
+    "model": "auth.group",
+    "pk": 1, 
+    "fields": {
+      "name": "admin"
+    }
+  }, 
+  {
+    "model": "auth.group", 
+    "pk": 2, 
+    "fields": {
+      "name": "customers"
+      }
+    }, 
+    {
+      "model": "auth.user_groups", 
+      "pk": 1, 
+      "fields": {
+        "user_id": 1, 
+        "group_id": 1
+      }
+    }
+]
+```
+**initial_data.yaml**
+```
+- model: auth.group
+  pk: 1
+  fields:
+    name: admin
+
+- model: auth.group
+  pk: 2
+  fields:
+    name: customers
+
+- model: auth.user_groups
+  pk: 1
+  fields:
+    user_id: 1
+    group_id: 1
+```
+this will insert data in tables auth_group with **admin** and **customer**
+and auth_user_groups with user id 1 and group id 1 of admin group
+but this will require a **user_id** of 1 to be located in users table you can create it with command 
+`python3 manage.py createsuperuser` 
+and create admin user then you can run or load fixtured such that
+`python3 manage.py loaddata fixtures/initial_data.json`
+or
+`python3 manage.py loaddata fixtures/initial_data.yaml`
+
+this can be done while migrating fixtures from local to cloud or reset your db
+this also can be done in different ways while migrations by creating empty migration as follows in below note
+
+### NOTE initial data with migrate command 
+to add default data to lookup tables you need to create an empty migration that is being added to **migrations** folder
+```
+python3 manage.py makemigrations --empty accountss --name myapp
+```
+this command will create an empty migration with name 'myapp'
+
+then we can modify **operations** section to add default data that is going to be applied while migrating
+```
+operations = [
+        migrations.RunSQL("INSERT INTO auth_group (name) VALUES ('customers');")
+    ]
+```
+this will insert customers to our auth_group table
+
+### Note dump current data into fixture file
+you can read current data into fixture file such that
+**json** `python3 manage.py dumpdata --format=json --indent 4 > fixtures/test_dump.json`
+**yaml** `python3 manage.py dumpdata --format=yaml --indent 4 > fixtures/test_dump.yaml`
+
+and you can dump specific models such that
+`python3 manage.py dumpdata auth.user_groups --format=yaml --indent 4 > fixtures/test_dump.yaml`
+this will dump table **auth_user_groups** into file **test_dump.yaml** 
+and so on this is very usefull feature in migrations from computer to another and for cloud migrations

@@ -81,8 +81,12 @@ WSGI_APPLICATION = 'CRM.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'Live_Demo_DB',
+        'USER': 'postgres',
+        'PASSWORD': '7azem5aled',
+        'HOST': '34.66.56.182',
+        'PORT': '5432'
     }
 }
 
@@ -142,3 +146,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'hazemkhaledmohamed3443@gmail.com'
 EMAIL_HOST_PASSWORD = '7azem5aledmo7amed'
+
+FIXTURE_DIRS = (
+   '/fixtures/',
+)
