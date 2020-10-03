@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "postgresql-290613",
+  "private_key_id": "0b99f9ec5d7cbe5210a7fe5cad0ed0b7c7b1b2c6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCCS7Mnf4pfzMFo\neP2LheK5wr86PKpfYgX+bhkjVEt8ep7LstHuOBgoe/6yq5mHGiroY9qpXku62Lsc\nV1OL2UQevlbjyGBuJUqgE+ZI97WgF2cYGQoaXZUaCzRy5HNtLsoMT6yni/iIWipa\n1S97A4ywW1PoJTa0i/ZjReNpugVt8Id7Z7ng6S18222uaTVMGFL9FieTReXyJG6Y\n5vckPx4xGaWi7i4vzasldk1sBp42qh87CZHAo3td8T/2Dskd6hTwVPjnavSZHcf7\n2JKEQI2Szu61jS6GkfV/g2b/VjLnFYUnEmNZhkhxvc1F51zvyawiU8ZNXDs1nYah\nMI3VsA/HAgMBAAECggEAD2F7mucIYPoHvsXBkGMpT3+4w9l+Idetbh/LDIuahELp\nVJHIYamc2HKYBLloXIrEk+hDBglL6+5CWucdb/3MInZE8DYALssXfcFmRtN5okCr\npSxCMA3qAvKy/05j0yNZ1eLgi8APLPFlMecb6BaULgv/N1aP7aI0CftUYW+vImS+\nSwa4+7jnGMBVaECzlmohQMKVvWvI5SffjPKpP7cOKiH6HGlmAxFu/gGKFGa3g8BI\niO0XMZAm77pX+wlcPqNLTqkbPh683uLRmr5say02RmmF1030PQC4FqSZans0/05m\n5FsHfoJP+xNw/yBTVhN2M4K+cFXQDfLXvHmmICr5OQKBgQC2s5q2Jdg5vyh8l7lY\ni3HD5YBihxOuZ/vEJAI50hYQk4HFhPSlKcIMlmMzS6I+c6l+6S4UZ4fPtFovZmPR\nS2XxBf35RoIdYXQel+dD70aNPigzVdw4Q1NlIFWlTZ8MpEfxQ1NzGIwvYazYnktM\ndJCh6jMiJyM704/8SW/L7X69BQKBgQC2kb3FQICbF3h59w9NCULB9L75GVZ8Hc5I\ndYxevEtANHWvTn2kGS3YFsL5z1wjJXQlqwE9+A2L4JxKp94sB0F8kQ8HmIyeEkUE\nU6wQo3Xd1zNQhNY0O1ZPGBaf1Czb5oAHX3PC99HrtGnQBtVwcR1jmRAQgeW6jSmO\nd/WdygWTWwKBgGC3QS4taIJhTEhwdSCHaOj/4+/Ee8m2qBOT0E3VhfKuc2MhV/Ta\n3yuUrNzpq/CNf+t7+vW4PK/aVGeFN1ADLurhdinwhk6RWUwcs8NFtj5s6hEK4bIz\nCcGd1VjVd13U1XTFZDaohwVKGprtaQUHK81a0kjBGSjBfRZbtb/pcE8VAoGAMAG4\nxfKFHsMYMfIOOvKRdFD4GqZYAIER6inGxG581yA0Rem8zfa1AFpT4L5u+urxVKpX\nxETCwyJH1rW3jRpHVQsLybKKX1JshYu+9g0VhET/QE/9x3RG6Ltrz5FKTnSY+9dU\nqFLkBzfEjygM3elQkg0AlWai0uAlqknO8zPZLXsCgYBgGV0wP1ODGBgTLV55E3n2\nCPaZX6KYC51E7yi6wPmZEiQNwSjUxuuF9uPtAxxUFYv5YN5h2ddj/T+4XvEnRoUp\nZdFMEQRcqizzxmQFUdHEHg3N7xrfY2RITBv5vWzK42FYl2DO+5NpgJ7bat1Y23x0\n+OaFf8c2P47OF92gIOH/Nw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "crm-django-app@postgresql-290613.iam.gserviceaccount.com",
+  "client_id": "110790878377552177249",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/crm-django-app%40postgresql-290613.iam.gserviceaccount.com"
+}

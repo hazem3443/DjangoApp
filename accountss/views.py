@@ -22,7 +22,9 @@ from .decorators import unauthenticated_user, allowed_users, admin_only
 
 from django.core.paginator import Paginator
 
-import os
+import os #this would be included to serve local images or local files checking
+
+from django.core.files.storage import default_storage
 
 # Create your views here.
 @unauthenticated_user
@@ -213,11 +215,13 @@ def user_settings(request):
     # print("customer pic: ",customer.profile_pic)
     # print("DIR: ",os.getcwd()+'/static/images/profile_pics/')
     
-    direct = os.getcwd()+'/static/images/profile_pics/'
+    # direct = os.getcwd()+'/static/images/profile_pics/' TODO:for local check uncomment this line 
     #set default image this occured in case of a Breach attack that deletes all saved images
-    if not os.path.isfile(direct + str(customer.profile_pic)) :
-        customer.profile_pic = 'c188345d-a2ef-4b25-9d8a-ac9137926485-default_profile_pic.svg'
-
+    # print(direct)
+    print(str(customer.profile_pic))
+    if not default_storage.exists( str(customer.profile_pic)) : #add this (direct +) before str  to properly check file existence
+        customer.profile_pic = '/images/profile_pics/c188345d-a2ef-4b25-9d8a-ac9137926485-default_profile_pic.svg'
+        
     form = CustomerForm(instance=customer)
 
     if request.method == 'POST':
@@ -229,9 +233,9 @@ def user_settings(request):
                 print('current img', customer.profile_pic.name)
                 print('previous img', previous_img)
                 # can't upload svg images so the server didn't notice that the image changed and return 304(not modified) error response 
-                if not (str(customer.profile_pic) in str(previous_img) ) and (str(previous_img) != "c188345d-a2ef-4b25-9d8a-ac9137926485-default_profile_pic.svg"):
+                if not (str(customer.profile_pic) in str(previous_img) ) and (str(previous_img) != "/images/profile_pics/c188345d-a2ef-4b25-9d8a-ac9137926485-default_profile_pic.svg"):
                     print("not the same image or not the default image ", (str(customer.profile_pic) in str(previous_img) ))
-                    os.remove(direct+str(previous_img))
+                    default_storage.delete(str(previous_img))
             except:
                 print("can't delete file it is already deleted")
             # customer.profile_pic = str(customer.profile_pic).replace('.', '+=_'+hash_token+'.')

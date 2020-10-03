@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
-
+from google.oauth2 import service_account
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,7 +27,7 @@ SECRET_KEY = 'f8#=webq4l5d!iskr*h_#kn&1(4+)n6(^=*jemtwb1op%=n*0w'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['e47fba7bea16.ngrok.io', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -127,17 +127,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
-
-MEDIA_URL = '/images/'
-
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images/profile_pics')
-
 #SMTP Configuration
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -150,3 +139,16 @@ EMAIL_HOST_PASSWORD = '7azem5aledmo7amed'
 FIXTURE_DIRS = (
    '/fixtures/',
 )
+
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'crm-test-1'
+
+STATIC_URL = 'https://storage.googleapis.com/crm-test-1/'
+
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file("postgresql-290613-0b99f9ec5d7c.json")
+
+#to allow collect static to copy static folder to cloud storage
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+
+
