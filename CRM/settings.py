@@ -27,7 +27,7 @@ SECRET_KEY = 'f8#=webq4l5d!iskr*h_#kn&1(4+)n6(^=*jemtwb1op%=n*0w'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['35.222.6.251','postgresql-290613.oa.r.appspot.com','localhost', '127.0.0.1']
 
 
 # Application definition
@@ -78,6 +78,7 @@ WSGI_APPLICATION = 'CRM.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+#postgresql-290613:us-central1:myinstance
 
 DATABASES = {
     'default': {
